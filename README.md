@@ -6,8 +6,8 @@ A minimal command-line tool that renders local markdown files using GitHub's API
 
 You can install via go using the following command:
 
-```console
-$ go install github.com/sixlive/gogrip@latest
+```shell
+go install github.com/sixlive/gogrip@latest
 ```
 
 You can also install by snagging a pre-built binary from the [releases](https://github.com/sixlive/gogrip/releases) page.
@@ -15,28 +15,28 @@ You can also install by snagging a pre-built binary from the [releases](https://
 ## Usage
 
 Basic usage with default README.md:
-```console
-$ gogrip
+```shell
+gogrip
 ```
 
 Specify a different file:
-```console
-$ gogrip -f CONTRIBUTING.md
+```shell
+gogrip -f CONTRIBUTING.md
 ```
 
 Open in browser automatically:
-```console
-$ gogrip -b
+```shell
+gogrip -b
 ```
 
 Custom host and port:
-```console
-$ gogrip -host 0.0.0.0 -port 8080
+```shell
+gogrip -host 0.0.0.0 -port 8080
 ```
 
+```shell
 With GitHub authentication (for higher rate limits):
-```console
-$ gogrip -token YOUR_GITHUB_TOKEN
+gogrip -token YOUR_GITHUB_TOKEN
 ```
 
 ## Options
