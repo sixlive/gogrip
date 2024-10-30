@@ -10,7 +10,7 @@ You can install via go using the following command:
 go install github.com/sixlive/gogrip@latest
 ```
 
-You can also install by snagging a pre-built binary from the [releases](https://github.com/sixlive/gogrip/releases) page.
+You can also install by snagging a pre-built binary from the [releases](https://github.com/sixlive/gogrip/releases/latest) page.
 
 ## Usage
 
