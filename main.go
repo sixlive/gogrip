@@ -33,7 +33,7 @@ type Config struct {
 func renderMarkdown(content []byte, token string) (string, error) {
 	payload := map[string]interface{}{
 		"text": string(content),
-		"mode": "markdown",
+		"mode": "gfm",
 	}
 
 	jsonData, err := json.Marshal(payload)
