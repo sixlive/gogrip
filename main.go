@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -90,19 +91,53 @@ func openBrowser(url string) {
 
 func createServer(config Config, tmpl *template.Template) http.Handler {
 	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir(filepath.Dir(config.FilePath)))
+	baseDir := filepath.Dir(config.FilePath)
+	fileServer := http.FileServer(http.Dir(baseDir))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
+		path := r.URL.Path
+
+		// Handle root path with README.md
+		if path == "/" {
 			handleRoot(config, tmpl)(w, r)
 			return
 		}
+
+		// Check if the requested path is a markdown file
+		if strings.HasSuffix(strings.ToLower(path), ".md") {
+			fullPath := filepath.Join(baseDir, filepath.Clean(strings.TrimPrefix(path, "/")))
+
+			// Read the markdown file
+			content, err := ioutil.ReadFile(fullPath)
+			if err != nil {
+				fileServer.ServeHTTP(w, r)
+				return
+			}
+
+			// Render the markdown
+			rendered, err := renderMarkdown(content, config.Token)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Failed to render markdown: %v", err), http.StatusInternalServerError)
+				return
+			}
+
+			data := struct {
+				Content template.HTML
+			}{
+				Content: template.HTML(rendered),
+			}
+
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			tmpl.Execute(w, data)
+			return
+		}
+
+		// Serve other files normally
 		fileServer.ServeHTTP(w, r)
 	})
-	
+
 	return mux
 }
-
 func handleRoot(config Config, tmpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		content, err := ioutil.ReadFile(config.FilePath)
@@ -130,7 +165,7 @@ func handleRoot(config Config, tmpl *template.Template) http.HandlerFunc {
 
 func main() {
 	config := Config{}
-	
+
 	flag.StringVar(&config.Host, "host", defaultHost, "Host to listen on")
 	flag.IntVar(&config.Port, "port", defaultPort, "Port to listen on")
 	flag.StringVar(&config.FilePath, "f", defaultFileName, "File to render")
